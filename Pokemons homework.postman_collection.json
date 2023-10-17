@@ -1,0 +1,290 @@
+{
+	"info": {
+		"_postman_id": "ca6fcffd-0f88-4eae-b39f-200ce53a408e",
+		"name": "Pokemons homework",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28163502"
+	},
+	"item": [
+		{
+			"name": "create pokemon (w/o name)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Без имени не даёт создать\", function () {\r",
+							"\tvar jsonData = pm.response.json();\r",
+							"pm.expect(jsonData.message).to.eql(\"Отсутствует имя покемона(name)\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"\",\r\n    \"photo\": \"https://dolnikov.ru/pokemons/albums/039.png\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}pokemons",
+					"host": [
+						"{{host}}pokemons"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create pokemon",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function getRandomNumber(min, max) {\r",
+							"    min = Math.ceil(min);\r",
+							"    max = Math.floor(max);\r",
+							"    return Math.floor(Math.random() * (max - min + 1)) + min;\r",
+							"}\r",
+							"\r",
+							"// Генерация случайного числа от 100 до 1008\r",
+							"const randomNumber = getRandomNumber(100, 1008);\r",
+							"const uri = \"https://dolnikov.ru/pokemons/albums/`{{$randomNumber}}`.png\";\r",
+							"\r",
+							"// Используйте ссылку URI в вашем запросе\r",
+							"pm.sendRequest({\r",
+							"    url: uri,\r",
+							"    method: 'GET',\r",
+							"    // Другие параметры запроса...\r",
+							"}, function (err, response) {\r",
+							"    // Обработка ответа...\r",
+							"});\r",
+							"\r",
+							"pm.sendRequest({\r",
+							"    url: uri,\r",
+							"    method: 'GET',\r",
+							"    // Другие параметры запроса...\r",
+							"}, function (err, response) {\r",
+							"    // Обработка ответа...\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.collectionVariables.set(\"pokemon_id\", jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "key",
+							"value": "trainer_token",
+							"type": "string"
+						},
+						{
+							"key": "value",
+							"value": "3126bf0d5ad599b1aa002d7442e7eacc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"generate\",\r\n    \"photo\": \"generate\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}pokemons",
+					"host": [
+						"{{host}}pokemons"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pokeball",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"pokemon_id\": {{pokemon_id}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}trainers/add_pokeball",
+					"host": [
+						"{{host}}trainers"
+					],
+					"path": [
+						"add_pokeball"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "battle",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest(\"https://api.pokemonbattle.me:9104/pokemons?in_pokeball=1\",\r",
+							"function (err, response) {\r",
+							"var jsonData = response.json();\r",
+							"var enemy_id = jsonData[0].id;\r",
+							"pm.collectionVariables.set(\"enemy_id\", enemy_id);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"attacking_pokemon\": {{pokemon_id}},\r\n    \"defending_pokemon\": {{enemy_id}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}battle?in_pokeball=1",
+					"host": [
+						"{{host}}battle"
+					],
+					"query": [
+						{
+							"key": "in_pokeball",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "change avatar",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"card_number\": \"4620869113632996\",\r\n    \"card_csv\": \"125\",\r\n    \"card_actual\": \"10/25\",\r\n\t  \"num\": \"56456\",\r\n\t\t\"avatar_id\": \"9\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}trainers/change_avatar",
+					"host": [
+						"{{host}}trainers"
+					],
+					"path": [
+						"change_avatar"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "your_token",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "trainer_token",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "https://api.pokemonbattle.me:9104/"
+		},
+		{
+			"key": "pokemon_id",
+			"value": ""
+		},
+		{
+			"key": "enemy_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
